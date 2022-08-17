@@ -33,11 +33,11 @@ exports.Login = async (req, res) => {
     });
   } else {
     const token = JWT.sign({ email }, 'q1w2e3r4t5y6u7i8o9p0', {
-      expiresIn: '10s',
+      expiresIn: '5s',
     });
 
     const refreshToken = JWT.sign({ email }, 'q1w2e3r4t5y6u7i8o9p0', {
-      expiresIn: '5m',
+      expiresIn: '10s',
     });
 
     res.status(200).json({ status: 'Success', token, refreshToken });
@@ -46,18 +46,18 @@ exports.Login = async (req, res) => {
 
 exports.RefreshTokenHandler = (req, res) => {
   let refreshToken = req.headers['x-access-token'];
-  console.log('reftoken', refreshToken);
   let decode = JWT.decode(refreshToken);
-  console.log('inside refresh', decode);
-  let email = decode?.email;
-
-  if (email) {
+  let { email, exp } = decode;
+  console.log('decode exp', exp);
+  if (Date.now() >= exp * 1000) {
+    res.status(400).json({ status: 'Refresh token expired', useremail: email });
+  } else if (email) {
     const token = JWT.sign({ email }, 'q1w2e3r4t5y6u7i8o9p0', {
-      expiresIn: '10s',
+      expiresIn: '5s',
     });
 
     const refreshToken = JWT.sign({ email }, 'q1w2e3r4t5y6u7i8o9p0', {
-      expiresIn: '5m',
+      expiresIn: '10s',
     });
 
     res.status(200).json({
